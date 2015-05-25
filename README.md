@@ -1,8 +1,7 @@
 # gin-pongo2
 pongo2 middleware for Gin framework.
 
-Example:
-
+##Example:
 ```Go
 package main
 
@@ -38,7 +37,9 @@ func main() {
     }
 
     router.Static("/static", "resources/static")
-    router.GET("/", IndexGet)
+    router.GET("/", func(c *gin.Context) {
+        c.HTML(http.StatusOK, "index.tpl", render.Context{"title": "Gin-pongo2!"})
+    })
 
     router.Run(":3000")
 }

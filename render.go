@@ -1,7 +1,6 @@
 package render
 
 import (
-	"log"
 	"net/http"
 	"path"
 
@@ -24,6 +23,8 @@ type (
 		Name     string
 		Data     interface{}
 	}
+
+	Context pongo2.Context
 )
 
 func NewProduction(path string) *PongoProduction {
@@ -39,10 +40,7 @@ func (p PongoProduction) Instance(name string, data interface{}) render.Render {
 	if tmpl, ok := p.Templates[name]; ok {
 		t = tmpl
 	} else {
-		tmpl, err := pongo2.FromFile(path.Join(p.Path, name))
-		if err != nil {
-			panic(err)
-		}
+		tmpl := pongo2.Must(pongo2.FromFile(path.Join(p.Path, name)))
 		p.Templates[name] = tmpl
 		t = tmpl
 	}
@@ -54,11 +52,7 @@ func (p PongoProduction) Instance(name string, data interface{}) render.Render {
 }
 
 func (p PongoDebug) Instance(name string, data interface{}) render.Render {
-	log.Print("recompiling ", name)
-	t, err := pongo2.FromFile(path.Join(p.Path, name))
-	if err != nil {
-		panic(err)
-	}
+	t := pongo2.Must(pongo2.FromFile(path.Join(p.Path, name)))
 	return Pongo{
 		Template: t,
 		Name:     name,
@@ -67,7 +61,7 @@ func (p PongoDebug) Instance(name string, data interface{}) render.Render {
 }
 
 func (p Pongo) Write(w http.ResponseWriter) error {
-	ctx := p.Data.(pongo2.Context)
+	ctx := pongo2.Context(p.Data.(Context))
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	return p.Template.ExecuteWriter(ctx, w)
 }
