@@ -60,7 +60,7 @@ func (p PongoDebug) Instance(name string, data interface{}) render.Render {
 	}
 }
 
-func (p Pongo) Write(w http.ResponseWriter) error {
+func (p Pongo) Render(w http.ResponseWriter) error {
 	ctx := pongo2.Context(p.Data.(Context))
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	return p.Template.ExecuteWriter(ctx, w)
